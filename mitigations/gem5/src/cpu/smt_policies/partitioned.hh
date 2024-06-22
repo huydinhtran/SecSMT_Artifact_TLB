@@ -14,6 +14,9 @@ class PartitionedSMTPolicy : public BaseSMTPolicy
     /* number of entries that are occupied by each thread */
     int* occupiedEntries;
 
+    float part1;
+    float part2;
+
   public:
     typedef PartitionedSMTPolicyParams Params;
 
@@ -43,9 +46,7 @@ class PartitionedSMTPolicy : public BaseSMTPolicy
      * evicted when we want to insert an entry for thread tid */
     unsigned evictMask(ThreadID tid) override;
 
-
     void init (int _size, int _numThreads, ClockedObject* _cpu) override;
-
 
     BaseSMTPolicy * clone () 
     {

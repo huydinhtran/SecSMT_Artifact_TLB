@@ -447,7 +447,7 @@ class SyscallTable32 :
         { base + 317, "inotify_add_watch" },
         { base + 318, "inotify_rm_watch" },
         { base + 319, "mbind" },
-        { base + 320, "get_mempolicy" },
+        { base + 320, "get_mempolicy"}, 
         { base + 321, "set_mempolicy" },
         { base + 322, "openat", openatFunc<ArmLinux32> },
         { base + 323, "mkdirat" },

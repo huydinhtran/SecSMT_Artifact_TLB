@@ -1,0 +1,7 @@
+config BR2_PACKAGE_MEMCACHED_SELFCONTAINED
+	bool "memcached_selfContained"
+	depends on BR2_TOOLCHAIN_HAS_THREADS
+	depends on BR2_USE_MMU
+	select BR2_PACKAGE_LIBEVENT
+	help
+		memcached_selfContained for gem5

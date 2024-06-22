@@ -1313,6 +1313,7 @@ class Packet : public Printable
     template <typename T>
     T getRaw() const;
 
+
     /** Set the value in the data pointer to v without byte swapping. */
     template <typename T>
     void setRaw(T v);
@@ -1373,6 +1374,13 @@ class Packet : public Printable
     isMaskedWrite() const
     {
         return (cmd == MemCmd::WriteReq && req->isMasked());
+    }
+
+
+    // AMIN
+    int getRawTid()
+    {
+        return req->getRawTid();
     }
 
     /**

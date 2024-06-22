@@ -15,6 +15,8 @@ class PartitionedSMTPolicy(BaseSMTPolicy):
     type = 'PartitionedSMTPolicy'
     cxx_class = 'PartitionedSMTPolicy'
     cxx_header = 'cpu/smt_policies/partitioned.hh'
+    part1 = Param.Float(0.5, "Fraction to partition component for thread 1")
+    part2 = Param.Float(0.5, "Fraction to partition component for thread 2")
 
 
 class DynamicSMTPolicy(BaseSMTPolicy):

@@ -264,27 +264,40 @@ template<class Impl>
 void
 LSQ<Impl>::writebackStores()
 {
-    list<ThreadID>::iterator threads = activeThreads->begin();
-    list<ThreadID>::iterator end = activeThreads->end();
+    // list<ThreadID>::iterator threads = activeThreads->begin();
+    // list<ThreadID>::iterator end = activeThreads->end();
     
     // Pick a random thread to start trying to grab instructions from
-    auto tid_itr = activeThreads->begin();
-    std::advance(tid_itr, random_mt.random<uint8_t>(0, activeThreads->size() - 1));
-    auto start_itr = tid_itr;
+    // auto tid_itr = activeThreads->begin();
+    // std::advance(tid_itr, random_mt.random<uint8_t>(0, activeThreads->size() - 1));
+    // auto start_itr = tid_itr;
 
-    do{
+    // do{
 
-        if (numStoresToWB(*tid_itr) > 0) {
+    //     if (numStoresToWB(*tid_itr) > 0) {
+    //         DPRINTF(Writeback,"[tid:%i] Writing back stores. %i stores "
+    //             "available for Writeback.\n", *tid_itr, numStoresToWB(*tid_itr));
+    //     }
+
+    //     thread[*tid_itr].writebackStores(); 
+    //     tid_itr++;
+    //     // Wrap around if at end of active threads list
+    //     if (tid_itr == activeThreads->end())
+    //         tid_itr = activeThreads->begin();
+    // } while (start_itr != tid_itr);
+    std::list<ThreadID>::iterator threads = activeThreads->begin();
+    std::list<ThreadID>::iterator end = activeThreads->end();
+
+    while (threads != end) {
+        ThreadID tid = *threads++;
+
+        if (numStoresToWB(tid) > 0) {
             DPRINTF(Writeback,"[tid:%i] Writing back stores. %i stores "
-                "available for Writeback.\n", *tid_itr, numStoresToWB(*tid_itr));
+                "available for Writeback.\n", tid, numStoresToWB(tid));
         }
 
-        thread[*tid_itr].writebackStores(); 
-        tid_itr++;
-        // Wrap around if at end of active threads list
-        if (tid_itr == activeThreads->end())
-            tid_itr = activeThreads->begin();
-    } while (start_itr != tid_itr);
+        thread[tid].writebackStores();
+    }
 }
 
 template<class Impl>

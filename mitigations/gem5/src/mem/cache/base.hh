@@ -950,6 +950,12 @@ class BaseCache : public ClockedObject
         /** Number of misses per thread for each type of command.
             @sa Packet::Command */
         Stats::Vector misses;
+        
+        // AMIN
+        Stats::Vector missesFromT0;
+        Stats::Vector missesFromT1;
+        Stats::Vector hitsFromT0;
+        Stats::Vector hitsFromT1;
         /**
          * Total number of cycles per thread/command spent waiting for a miss.
          * Used to calculate the average miss latency.
@@ -990,6 +996,12 @@ class BaseCache : public ClockedObject
         }
 
         const BaseCache &cache;
+
+        // AMIN 
+        Stats::Formula overallMissesFromT0;
+        Stats::Formula overallMissesFromT1;
+        Stats::Formula overallHitsFromT0;
+        Stats::Formula overallHitsFromT1;
 
         /** Number of hits for demand accesses. */
         Stats::Formula demandHits;
@@ -1081,6 +1093,7 @@ class BaseCache : public ClockedObject
 
         /** Per-command statistics */
         std::vector<std::unique_ptr<CacheCmdStats>> cmd;
+
     } stats;
 
     /** Registers probes. */
@@ -1233,7 +1246,18 @@ class BaseCache : public ClockedObject
     void incMissCount(PacketPtr pkt)
     {
         assert(pkt->req->requestorId() < system->maxRequestors());
+
+        // AMIN 
+        if (pkt->getRawTid() == 0){
+            // printf("this is from thread 0 \n");
+            stats.cmdStats(pkt).missesFromT0[pkt->getRawTid()]++;
+
+        } else {
+            // printf("this is from thread 1 \n");
+            stats.cmdStats(pkt).missesFromT1[pkt->getRawTid()]++;
+        }
         stats.cmdStats(pkt).misses[pkt->req->requestorId()]++;
+
         pkt->req->incAccessDepth();
         if (missCount) {
             --missCount;
@@ -1244,6 +1268,17 @@ class BaseCache : public ClockedObject
     void incHitCount(PacketPtr pkt)
     {
         assert(pkt->req->requestorId() < system->maxRequestors());
+
+        // AMIN 
+        if (pkt->getRawTid() == 0){
+            // printf("this is from thread 0 \n");
+            stats.cmdStats(pkt).hitsFromT0[pkt->getRawTid()]++;
+
+        } else {
+            // printf("this is from thread 1 \n");
+            stats.cmdStats(pkt).hitsFromT1[pkt->getRawTid()]++;
+        }
+
         stats.cmdStats(pkt).hits[pkt->req->requestorId()]++;
     }
 

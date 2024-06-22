@@ -163,7 +163,11 @@ def addNoISAOptions(parser):
 def addCommonOptions(parser):
     # start by adding the base options that do not assume an ISA
     addNoISAOptions(parser)
-
+    ###############Huy################
+    parser.add_option(
+        "--warmup-dpdk", action="store", type=int, default=0,
+        help="Warmup period in ticks (requires --standard-switch)")
+    ##################################
     # system options
     parser.add_option("--list-cpu-types",
                       action="callback", callback=_listCpuTypes,
@@ -227,7 +231,23 @@ def addCommonOptions(parser):
     parser.add_option("--smtIQPolicy-limit", type="float", action="store",
                       default="0.7",
                       help = "adaptive limit of each partition for IQ" )                      
+    
+
+    parser.add_option("--smtTLBPolicy-part1", type="float", action="store",
+                      default="0.5",
+                      help = "fraction of each partition for TLB" )  
+    parser.add_option("--smtTLBPolicy-part2", type="float", action="store",
+                      default="0.5",
+                      help = "fraction of each partition for TLB" )
+    # parser.add_option("--smtTLBPolicy-part1", type="float", action="store",
+    #                   default="0.5",
+    #                   help = "fraction of each partition for DTLB" )
+    # parser.add_option("--smtTLBPolicy-part2", type="float", action="store",
+    #                   default="0.5",
+    #                   help = "fraction of each partition for DTLB" )
+    
                       
+
     parser.add_option("--smtCachePolicy", type="choice",
                       default="DynamicSMTPolicy",
                       choices=ObjectList.smt_policy_list.get_names(),
@@ -343,6 +363,12 @@ def addCommonOptions(parser):
     parser.add_option("--elastic-trace-en", action="store_true",
                       help="""Enable capture of data dependency and instruction
                       fetch traces using elastic trace probe.""")
+    
+    parser.add_option("--itb-entries", 
+                      default=32,
+                      action="store", type="int",
+                      help="Number of ITB entries")
+
     # Trace file paths input to trace probe in a capture simulation and input
     # to Trace CPU in a replay simulation
     parser.add_option("--inst-trace-file", action="store", type="string",

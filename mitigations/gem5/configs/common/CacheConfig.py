@@ -111,7 +111,7 @@ def config_cache(options, system):
         # are not connected using addTwoLevelCacheHierarchy. Use the
         # same clock as the CPUs.
         if options.cpu_type == "Skylake_3":
-            system.l2 = l2_cache_class(clk_domain=system.cpu_clk_domain)
+            system.l2 = l2_cache_class(clk_domain=system.cpu_clk_domain, size=options.l2_size, assoc=options.l2_assoc)
             policy =  ObjectList.policy_obj("smtCachePolicy", options)
             if hasattr(policy, "max_borrow"):
                 policy.max_borrow = 0

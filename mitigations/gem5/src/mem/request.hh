@@ -567,6 +567,12 @@ class Request
         return _paddr;
     }
 
+    // AMIN
+    int getRawTid() const
+    {
+        return _contextId;
+    }
+
     /**
      * Accessor for instruction count.
      */

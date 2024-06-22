@@ -112,8 +112,8 @@ def get_processes(options):
         idx += 1
 
     if options.smt:
-        assert(options.cpu_type == "DerivO3CPU" or
-            options.cpu_type == "Skylake_3")
+        # assert(options.cpu_type == "DerivO3CPU" or
+        #     options.cpu_type == "Skylake_3")
         return multiprocesses, idx
     else:
         return multiprocesses, 1
@@ -122,6 +122,8 @@ def get_processes(options):
 parser = optparse.OptionParser()
 Options.addCommonOptions(parser)
 Options.addSEOptions(parser)
+
+
 
 if '--ruby' in sys.argv:
     Ruby.define_options(parser)
@@ -205,6 +207,11 @@ if options.elastic_trace_en:
 # frequency.
 for cpu in system.cpu:
     cpu.clk_domain = system.cpu_clk_domain
+    #HUY
+    cpu.itb.size = options.itb_entries
+    print("ITB size: ", cpu.itb.size)
+    if options.inst_trace_file or options.data_trace_file:
+        cpu.attach_probe_listener(options.inst_trace_file, options.data_trace_file)
 
 if ObjectList.is_kvm_cpu(CPUClass) or ObjectList.is_kvm_cpu(FutureClass):
     if buildEnv['TARGET_ISA'] == 'x86':
@@ -247,6 +254,15 @@ for i in range(np):
             cpuclass.smtVecRegPolicy = policy_obj("smtPhysRegPolicy", options)
             cpuclass.smtFloatRegPolicy = policy_obj("smtPhysRegPolicy", options)
             cpuclass.branchPred.smtPolicy = policy_obj("smtBTBPolicy", options)
+
+
+            if hasattr(cpuclass, "itb"):
+                cpuclass.itb.smtTLBPolicy = PartitionedSMTPolicy(part1=options.smtTLBPolicy_part1, part2=options.smtTLBPolicy_part2)
+                print("part1: ", options.smtTLBPolicy_part1)
+                print("part2: ", options.smtTLBPolicy_part2)
+            if hasattr(cpuclass, "dtb"):
+                cpuclass.dtb.smtTLBPolicy = PartitionedSMTPolicy(part1=0.5, part2=0.5)
+
 
 
             if hasattr(cpuclass, "smtMainThread"):

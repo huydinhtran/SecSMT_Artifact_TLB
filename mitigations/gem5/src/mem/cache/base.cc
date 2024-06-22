@@ -1941,6 +1941,26 @@ BaseCache::CacheCmdStats::regStatsFromParent()
         hits.subname(i, system->getRequestorName(i));
     }
 
+    // AMIN
+
+    missesFromT0
+        .init(max_requestors)
+        .flags(total | nozero | nonan)
+        ;
+    missesFromT1
+        .init(max_requestors)
+        .flags(total | nozero | nonan)
+        ;
+
+    hitsFromT0
+        .init(max_requestors)
+        .flags(total | nozero | nonan)
+        ;
+    hitsFromT1
+        .init(max_requestors)
+        .flags(total | nozero | nonan)
+        ;
+
     // Miss statistics
     misses
         .init(max_requestors)
@@ -2052,6 +2072,19 @@ BaseCache::CacheCmdStats::regStatsFromParent()
 BaseCache::CacheStats::CacheStats(BaseCache &c)
     : Stats::Group(&c), cache(c),
 
+    // AMIN - added overall accesses from T0 and T1
+    overallMissesFromT0(this, "overall_misses_from_T0",
+                          "number of overall misses from T0"),
+                          
+    overallMissesFromT1(this, "overall_misses_from_T1",
+                          "number of overall misses from T1"),
+
+    overallHitsFromT0(this, "overall_hits_from_T0",
+                          "number of overall hits from T0"),
+                          
+    overallHitsFromT1(this, "overall_hits_from_T1",
+                          "number of overall hits from T1"),
+
     demandHits(this, "demand_hits", "number of demand (read+write) hits"),
 
     overallHits(this, "overall_hits", "number of overall hits"),
@@ -2139,10 +2172,48 @@ BaseCache::CacheStats::regStats()
      cmd[MemCmd::WriteLineReq]->s + cmd[MemCmd::ReadExReq]->s +         \
      cmd[MemCmd::ReadCleanReq]->s + cmd[MemCmd::ReadSharedReq]->s)
 
+#define SUM_DEMAND_T0(s)                                                \
+    (cmd[MemCmd::ReadReq]->s + cmd[MemCmd::WriteReq]->s +               \
+     cmd[MemCmd::WriteLineReq]->s + cmd[MemCmd::ReadExReq]->s +         \
+     cmd[MemCmd::ReadCleanReq]->s + cmd[MemCmd::ReadSharedReq]->s)
+
+#define SUM_DEMAND_T1(s)                                                \
+    (cmd[MemCmd::ReadReq]->s + cmd[MemCmd::WriteReq]->s +               \
+     cmd[MemCmd::WriteLineReq]->s + cmd[MemCmd::ReadExReq]->s +         \
+     cmd[MemCmd::ReadCleanReq]->s + cmd[MemCmd::ReadSharedReq]->s)
+
+
 // should writebacks be included here?  prior code was inconsistent...
 #define SUM_NON_DEMAND(s)                                       \
     (cmd[MemCmd::SoftPFReq]->s + cmd[MemCmd::HardPFReq]->s +    \
      cmd[MemCmd::SoftPFExReq]->s)
+
+    // AMIN
+
+    overallMissesFromT0.flags(total | nozero | nonan);
+    overallMissesFromT0 = SUM_DEMAND_T0(missesFromT0);
+    for (int i = 0; i < max_requestors; i++) {
+        overallMissesFromT0.subname(i, system->getRequestorName(i));
+    }
+
+    overallMissesFromT1.flags(total | nozero | nonan);
+    overallMissesFromT1 = SUM_DEMAND_T1(missesFromT1);
+    for (int i = 0; i < max_requestors; i++) {
+        overallMissesFromT1.subname(i, system->getRequestorName(i));
+    }
+
+
+    overallHitsFromT0.flags(total | nozero | nonan);
+    overallHitsFromT0 = SUM_DEMAND_T0(hitsFromT0);
+    for (int i = 0; i < max_requestors; i++) {
+        overallHitsFromT0.subname(i, system->getRequestorName(i));
+    }
+
+    overallHitsFromT1.flags(total | nozero | nonan);
+    overallHitsFromT1 = SUM_DEMAND_T1(hitsFromT1);
+    for (int i = 0; i < max_requestors; i++) {
+        overallHitsFromT1.subname(i, system->getRequestorName(i));
+    }
 
     demandHits.flags(total | nozero | nonan);
     demandHits = SUM_DEMAND(hits);
