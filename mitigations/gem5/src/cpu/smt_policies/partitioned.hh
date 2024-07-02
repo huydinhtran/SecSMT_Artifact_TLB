@@ -25,6 +25,9 @@ class PartitionedSMTPolicy : public BaseSMTPolicy
     /** Destructor. */
     ~PartitionedSMTPolicy() {};
 
+    // HUY
+    void setPartition(float part1, float part2);
+
     /** should be called when a thread tid uses one element of the
      *  stateful resource    */
     void consume(ThreadID tid) override;

@@ -1,43 +1,3 @@
-# Copyright (c) 2012-2013 ARM Limited
-# All rights reserved.
-#
-# The license below extends only to copyright in the software and shall
-# not be construed as granting a license to any other intellectual
-# property including but not limited to intellectual property relating
-# to a hardware implementation of the functionality of the software
-# licensed hereunder.  You may use the software subject to the license
-# terms below provided that you ensure that this notice is replicated
-# unmodified and in its entirety in all distributions of the software,
-# modified or unmodified, in source code or in binary form.
-#
-# Copyright (c) 2006-2008 The Regents of The University of Michigan
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are
-# met: redistributions of source code must retain the above copyright
-# notice, this list of conditions and the following disclaimer;
-# redistributions in binary form must reproduce the above copyright
-# notice, this list of conditions and the following disclaimer in the
-# documentation and/or other materials provided with the distribution;
-# neither the name of the copyright holders nor the names of its
-# contributors may be used to endorse or promote products derived from
-# this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-# Simple test script
-#
 # "m5 test.py"
 
 from __future__ import print_function
@@ -210,8 +170,8 @@ for cpu in system.cpu:
     #HUY
     cpu.itb.size = options.itb_entries
     print("ITB size: ", cpu.itb.size)
-    if options.inst_trace_file or options.data_trace_file:
-        cpu.attach_probe_listener(options.inst_trace_file, options.data_trace_file)
+    # if options.inst_trace_file or options.data_trace_file:
+    #     cpu.attach_probe_listener(options.inst_trace_file, options.data_trace_file)
 
 if ObjectList.is_kvm_cpu(CPUClass) or ObjectList.is_kvm_cpu(FutureClass):
     if buildEnv['TARGET_ISA'] == 'x86':
@@ -248,22 +208,14 @@ for i in range(np):
             cpuclass.smtLQPolicy = policy_obj("smtLQPolicy", options)
             cpuclass.smtSQPolicy = policy_obj("smtSQPolicy", options)
             cpuclass.smtROBPolicy = policy_obj("smtROBPolicy", options)
-            cpuclass.itb.smtTLBPolicy = policy_obj("smtTLBPolicy", options)
-            cpuclass.dtb.smtTLBPolicy = policy_obj("smtTLBPolicy", options)       
+            # cpuclass.itb.smtTLBPolicy = policy_obj("smtTLBPolicy", options)
+            # cpuclass.dtb.smtTLBPolicy = policy_obj("smtTLBPolicy", options)       
+            cpuclass.itb.smtTLBPolicy = PartitionedSMTPolicy(part1=options.smtTLBPolicy_part1, part2=options.smtTLBPolicy_part2)
+            cpuclass.dtb.smtTLBPolicy = PartitionedSMTPolicy(part1=0.5, part2=0.5)
             cpuclass.smtIntRegPolicy = policy_obj("smtPhysRegPolicy", options)
             cpuclass.smtVecRegPolicy = policy_obj("smtPhysRegPolicy", options)
             cpuclass.smtFloatRegPolicy = policy_obj("smtPhysRegPolicy", options)
             cpuclass.branchPred.smtPolicy = policy_obj("smtBTBPolicy", options)
-
-
-            if hasattr(cpuclass, "itb"):
-                cpuclass.itb.smtTLBPolicy = PartitionedSMTPolicy(part1=options.smtTLBPolicy_part1, part2=options.smtTLBPolicy_part2)
-                print("part1: ", options.smtTLBPolicy_part1)
-                print("part2: ", options.smtTLBPolicy_part2)
-            if hasattr(cpuclass, "dtb"):
-                cpuclass.dtb.smtTLBPolicy = PartitionedSMTPolicy(part1=0.5, part2=0.5)
-
-
 
             if hasattr(cpuclass, "smtMainThread"):
                 cpuclass.smtMainThread = options.maxinsts_threadID
@@ -313,6 +265,7 @@ for i in range(np):
         system.cpu[i].branchPred.indirectBranchPred = indirectBPClass()
 
     system.cpu[i].createThreads()
+    
 
 if options.ruby:
     Ruby.create_system(options, False, system)
@@ -350,4 +303,5 @@ if options.wait_gdb:
         cpu.wait_for_remote_gdb = True
 
 root = Root(full_system = False, system = system)
+    
 Simulation.run(options, root, system, FutureClass)

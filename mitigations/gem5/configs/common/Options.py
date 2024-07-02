@@ -239,12 +239,6 @@ def addCommonOptions(parser):
     parser.add_option("--smtTLBPolicy-part2", type="float", action="store",
                       default="0.5",
                       help = "fraction of each partition for TLB" )
-    # parser.add_option("--smtTLBPolicy-part1", type="float", action="store",
-    #                   default="0.5",
-    #                   help = "fraction of each partition for DTLB" )
-    # parser.add_option("--smtTLBPolicy-part2", type="float", action="store",
-    #                   default="0.5",
-    #                   help = "fraction of each partition for DTLB" )
     
                       
 
